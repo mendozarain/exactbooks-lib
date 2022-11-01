@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  web:
+    image: mendozarain/exactbooks-backend:0.1
+    build: ./exactbooks-backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./app/:./exactbooks-backend
+    ports:
+      - 8000:8000
