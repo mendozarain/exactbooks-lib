@@ -22,7 +22,7 @@ class BookAdmin(admin.ModelAdmin):
                 'date_updated'
             )
     readonly_fields = ('date_created', 'date_updated')
-    search_fields = ('title', 'status', 'location', 'type',)
+    search_fields = ('title', 'status', 'location', 'book_type',)
   
 class GenreAdmin(admin.ModelAdmin):
     model = Genre

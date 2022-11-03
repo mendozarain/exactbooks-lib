@@ -22,8 +22,9 @@ class AuthorSerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     owner = UserSerializer(required=False, allow_null=True, default=None)
     authors = AuthorSerializer(required=False, allow_null=True, many=True)
-    cover = Base64ImageField(required=False)
-    comment_count = serializers.SerializerMethodField(read_only=True)
+    cover = serializers.ImageField(required=False)
+    cover_image = serializers.ReadOnlyField(source='get_cover')
+    book_id = serializers.ReadOnlyField(source='get_id')
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
@@ -31,52 +32,59 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields = ('id', 'title', 'description', 'type', 'status', 'location', 'comment_count',
-                  'thumbnail', 'authors', 'owner', 'date_created', 'date_updated')
+        fields = ('id', 'book_id', 'title', 'description', 'book_type', 'status', 'location',
+                  'cover', 'authors', 'owner', 'date_created', 'date_updated','cover_image')
+
+    def get_cover(self, instance):
+        return instance.get_cover()
+
+    def get_id(self, instance):
+        return instance.get_id()
 
     def validate(self, data):
         if not data.get('title'):
             raise serializers.ValidationError({"title": "Title cannot be blank"})
-        if not data.get('description'):
-            raise serializers.ValidationError({"description": "Description cannot be blank"})
-        if not data.get('type'):
-            raise serializers.ValidationError({"type": "Type cannot be blank"})
-        if not data.get('status'):
-            raise serializers.ValidationError({"status": "Status cannot be blank"})
+        if not data.get('book_type'):
+            raise serializers.ValidationError({"book_type": "Type cannot be blank"})
         if not data.get('location'):
             raise serializers.ValidationError({"location": "Location cannot be blank"})
+        if not data.get('authors'):
+            raise serializers.ValidationError({"authors": "Author cannot be blank"})
+        return data
 
     def create(self, validated_data):
         book = Book(
             title=validated_data.get('title', None),
             location=validated_data.get('location', None),
-            status=validated_data.get('status', None),
-            type=validated_data.get('type', None),
+            status=validated_data.get('status', 'available'),
+            book_type=validated_data.get('book_type', None),
             owner=self.request.user,
             description=validated_data.get('description', None),
         )
-        if validated_data.get('thumbnail'):
-            book.thumbnail=validated_data.get('thumbnail')
-
-        for data in self.request.data.get('authors'):
-            author, created = Author.objects.get_or_create(name=data.get('value'))
-            if author:
-                book.authors.add(author)
-            else:
-                book.authors.add(created)
-        for data in self.request.data.get('genres'):
-            genre, created = Genre.objects.get_or_create(name=data.get('value'))
-            if genre:
-                book.genres.add(genre)
-            else:
-                book.genres.add(created)
+        if validated_data.get('cover'):
+            book.cover=validated_data.get('cover')
         book.save()
+        if self.request.data.get('authors'):
+            for data in self.request.data.get('authors'):
+                author, created = Author.objects.get_or_create(name=data.get('value'))
+                if author:
+                    book.authors.add(author)
+                else:
+                    book.authors.add(created)
+        if self.request.data.get('genres'):
+            for data in self.request.data.get('genres'):
+                genre, created = Genre.objects.get_or_create(name=data.get('value'))
+                if genre:
+                    book.genres.add(genre)
+                else:
+                    book.genres.add(created)
+       
 
     def update(self, instance, validated_data):
         title = validated_data.get('title', None)
         status = validated_data.get('status', None)
         description = validated_data.get('description', None)
-        type = validated_data.get('type', None)
+        book_type = validated_data.get('book_type', None)
         genres = self.request.data.get('genres')
         location = validated_data.get('location', None)
         authors = self.request.data.get('authors')
@@ -86,8 +94,8 @@ class BookSerializer(serializers.ModelSerializer):
             instance.status = status
         if description:
             instance.description = description
-        if type:
-            instance.type = type
+        if book_type:
+            instance.book_type = book_type
         if location:
             instance.location = location
 

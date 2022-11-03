@@ -12,20 +12,25 @@ from books.serializers import (
     BookSerializer, 
     CheckoutSerializer,
     CommentSerializer, 
-    # AuthorSerializer, 
+    AuthorSerializer, 
 )
 import datetime
+from core.mixins import get_object_or_none
 
 class BookViewSet(ViewSet):
     serializer_class = BookSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get_book_detail(self, *args, **kwargs):
-        books = Book.objects.all().order_by('-date_created')
-        serializer = self.serializer_class(books, many=True)
-        return Response(serializer.data, status=200)
-
     def add_book(self, *args, **kwargs):
+        authors = self.request.data['authors']
+        authors_list = []
+        if authors and not ',' in authors:
+            authors_list.append({'value':authors})
+        elif authors and ',' in authors:
+            for author in self.request.data['authors'].split(','):
+                authors_list.append({'value':author})
+        self.request.data['authors'] = authors_list
+
         serializer = self.serializer_class(
             data=self.request.data, request=self.request
         )
@@ -46,6 +51,15 @@ class BookViewSet(ViewSet):
         return Response(serializer.data, status=200)
 
     def update_book(self, *args, **kwargs):
+        authors = self.request.data['authors']
+        authors_list = []
+        if authors and not ',' in authors:
+            authors_list.append({'value':authors})
+        elif authors and ',' in authors:
+            for author in self.request.data['authors'].split(','):
+                authors_list.append({'value':author})
+        self.request.data['authors'] = authors_list
+        
         serializer = self.serializer_class(
             instance=Book.objects.get(id=self.request.data.get('id')),
             data=self.request.data,
@@ -54,9 +68,16 @@ class BookViewSet(ViewSet):
         if serializer.is_valid(raise_exception=True):
             serializer.save()
         return Response(serializer.data, status=200)
+    
+    def get_detail(self, *args, **kwargs):
+        book = get_object_or_none(Book, id=self.kwargs.get('id'))
+        if book:
+            serializer = self.serializer_class(instance=book)
+            return Response(serializer.data, status=200)
+        return Response(status=400)
+
 
 class CheckoutViewSet(ViewSet):
-
     serializer_class = CheckoutSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -177,3 +198,11 @@ class CommentViewSet(ViewSet):
             message = {'status': 'An error has occured. Please try again.'}
             return Response(message, status=400)
         return Response(message, status=200)
+class AuthorViewSet(ViewSet):
+    serializer_class = AuthorSerializer
+    permission_classes = (AllowAny,)
+
+    def get(self, *args, **kwargs):
+        authors = Author.objects.all()
+        serializer = self.serializer_class(authors, many=True)
+        return Response(serializer.data, status=200)

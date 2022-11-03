@@ -29,15 +29,16 @@ export const Navbar = () => {
           py={{
             base: '4',
             lg: '5',
-          }}
+          }}              
         >
           <HStack spacing="20" justify="space-between">
             <Logo />
             {isDesktop ? (
               <Flex justify="space-between" flex="1">
                 <ButtonGroup variant="link" spacing="10">
-                  <Link to="/" className="chakra-button css-1b8elh8">Home</Link>
-                  <Link to="/profile" className="chakra-button css-1b8elh8">Profile</Link>
+                  <Link to="/books/add/" className="chakra-button css-1b8elh8">Add Books</Link>
+                  <Link to="/" className="chakra-button css-1b8elh8">My Books</Link>
+                  <Link to="/profile" className="chakra-button css-1b8elh8">Owned Books</Link>
                   <Link to="/logout" className="chakra-button css-1b8elh8">Logout</Link>
                 </ButtonGroup>
               </Flex>

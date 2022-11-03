@@ -3,6 +3,7 @@ from user.models import User
 from uuid import uuid4
 import os
 from core.mixins import OverwriteStorage
+from django.conf import settings
 
 def path_and_rename(instance, filename):
     upload_to = 'books'
@@ -61,12 +62,18 @@ class Book(models.Model):
     location = models.CharField(default=EXACTUS_OFFICE, max_length=30, choices=LOCATIONS)
     title = models.CharField(max_length=255)
     authors = models.ManyToManyField(Author, blank=True)
-    genres = models.ManyToManyField(Genre,related_name='genres')
+    genres = models.ManyToManyField(Genre,related_name='genres',blank=True, null=True)
     description = models.TextField(blank=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE,)
     cover = models.ImageField(upload_to=path_and_rename,default='books/default_cover.png',storage=OverwriteStorage(),blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
+
+    def get_cover(self):
+        return '{}{}'.format(settings.CDN_MEDIA_URL,str(self.cover))
+
+    def get_id(self):
+        return str('{}'.format(self.pk))
 
     def get_genres(self):
         return ",".join([str(g) for g in self.genres.all()])

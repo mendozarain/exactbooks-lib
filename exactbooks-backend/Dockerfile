@@ -16,6 +16,5 @@ RUN pip3 install -r requirements.txt --no-cache-dir
 RUN apk add curl
 RUN curl --create-dirs -o $HOME/.postgresql/root.crt -O https://cockroachlabs.cloud/clusters/36ad5902-5296-4696-9727-96c1d34af15a/cert
 COPY . /app 
-ENTRYPOINT ["python3"] 
-EXPOSE 8000
-CMD ["manage.py", "runserver", "0.0.0.0:8000"]
+
+CMD ["gunicorn", "--bind", ":8000", "--workers", "2", "core.wsgi:application"]

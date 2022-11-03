@@ -12,7 +12,7 @@ from rest_framework.validators import UniqueValidator
 
 from user.models import User
 import datetime
-
+import re
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField(read_only=True)
     image = serializers.SerializerMethodField(read_only=True)
@@ -95,12 +95,18 @@ class RegistrationSerializer(serializers.ModelSerializer):
         )
 
     def validate(self, data):
-        if User.objects.get(email=data.get('email')):
+        if User.objects.filter(email=data.get('email')):
             raise serializers.ValidationError({"email": "Email is already taken"})
 
         password = data.get('password')
         confirm_password = data.get('confirm_password')
 
+        if not re.match(r"([a-zA-Z]{3,30}\s*)+",data.get('first_name')):
+             raise serializers.ValidationError({"first_name": "Enter valid First name"})
+
+        if not re.match(r'[a-zA-Z_. -]+$',data.get('last_name')):
+             raise serializers.ValidationError({"last_name": "Enter valid Last name"})
+       
         if password != confirm_password:
             raise serializers.ValidationError({"password": "Password does not match"})
         return data
