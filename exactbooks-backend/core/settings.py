@@ -31,7 +31,7 @@ BUNNY_REGION = 'sg'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(os.path.dirname(BASE_DIR), "static")
 
-MEDIA_URL = "/media/"
+MEDIA_URL = "https://exactbooks.b-cdn.net/"
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), "media")
 
 CORS_ALLOW_ALL_ORIGINS = True

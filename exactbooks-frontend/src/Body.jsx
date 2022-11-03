@@ -29,7 +29,6 @@ export default function Body () {
           <Route path="*" element={<Navigate replace to="/" />} />
           <Route path="/login" element={<Login funcNav={setShowNav}/>} />
           <Route path="/register" element={<Register funcNav={setShowNav}/>} />
-        
       </Routes>
     </>
   )

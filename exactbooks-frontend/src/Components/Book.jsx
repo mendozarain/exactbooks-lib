@@ -96,6 +96,7 @@ import {
               </Heading>
               <Authors author={book.authors} />
               <Text
+                noOfLines={[1,4]}
                 textAlign={'center'}
                 color={useColorModeValue('gray.700', 'gray.400')}
                 px={3}>

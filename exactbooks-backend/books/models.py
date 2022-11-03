@@ -4,6 +4,8 @@ from uuid import uuid4
 import os
 from core.mixins import OverwriteStorage
 from django.conf import settings
+import timeago, datetime
+from django.utils import timezone
 
 def path_and_rename(instance, filename):
     upload_to = 'books'
@@ -88,7 +90,9 @@ class Comment(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_updated = models.DateTimeField(auto_now=True)
     reply_to = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name='replies')
-
+    
+    def get_timeago(self):
+        return '{}'.format(timeago.format(self.date_created, timezone.now()))
 class Checkout(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     returned_date = models.DateTimeField(blank=True, null=True)

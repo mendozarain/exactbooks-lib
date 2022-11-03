@@ -27,7 +27,9 @@ class Login(APIView):
         token, created = Token.objects.get_or_create(user=serializer.user)
         return Response({
             'user_id': serializer.user.id,
-            'token': token.key
+            'token': token.key,
+            'user_image':serializer.user.get_image(),
+            'user_name':serializer.user.get_full_name(),
         }, status=200)
 
 class Register(APIView):

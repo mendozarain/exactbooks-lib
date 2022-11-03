@@ -44,13 +44,12 @@ import {
         event.preventDefault()
         let res = await axios.post(axios.defaults.baseURL+'users/login/', formData, configAxios)
         .then(response => {
-          axios.defaults.headers.common['Authorization'] = `Token ${localStorage.getItem('token')}`
           localStorage.setItem('token', response.data.token)
-          localStorage.setItem('user', response.data.user_id)
-          localStorage.setItem('user_name', response.data.full_name)
-          localStorage.setItem('user_image', "https://exactbooks.b-cdn.net"+response.data.image)
+          localStorage.setItem('user_id', response.data.user_id)
+          localStorage.setItem('user_name', response.data.user_name)
+          localStorage.setItem('user_image', response.data.image)
           localStorage.setItem('isAuthenticated', true)
-
+          axios.defaults.headers.common['Authorization'] = `Token ${localStorage.getItem('token')}`
           navigate("/");
         })
         .catch(error => {

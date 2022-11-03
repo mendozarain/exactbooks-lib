@@ -61,7 +61,7 @@ import {
     }, []);
 
     const getBook = () => {
-      axios.get(axios.defaults.baseURL+'books/'+id)
+      axios.get(axios.defaults.baseURL+'books/'+id, configAxios)
         .then((response) => {
           let all_authors = ""
           response.data.authors.map((author, index) => {
@@ -69,8 +69,6 @@ import {
                 all_authors+=author.name+","
               }else all_authors = author.name
             })
-
-          console.log(all_authors)
           setFormData(prevFormData => {
             return {
                 ...prevFormData,

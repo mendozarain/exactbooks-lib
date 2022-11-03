@@ -154,7 +154,7 @@ class CheckoutSerializer(serializers.ModelSerializer):
 
     book = BookSerializer(required=False, allow_null=True)
     checked_out_by = UserSerializer(required=False, allow_null=True)
-
+    
     class Meta:
         model=Checkout
         fields = ('id', 'book', 'checked_out_by', 'checked_out_date', 'returned_date')
@@ -167,10 +167,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     book = BookSerializer(required=False, allow_null=True)
     user = UserSerializer(required=False, allow_null=True)
-
+    timeago = serializers.ReadOnlyField(source='get_timeago')
     class Meta:
         model = Comment
-        fields = ('id', 'message', 'book', 'user', 'date_created', 'date_updated')
+        fields = ('id', 'timeago','text', 'book', 'user', 'date_created', 'date_updated')
+
+    def get_timeago(self, instance):
+        return instance.get_timeago()
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)

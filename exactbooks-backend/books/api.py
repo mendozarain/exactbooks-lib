@@ -142,8 +142,7 @@ class CommentViewSet(ViewSet):
     def get_comments(self, *args, **kwargs):
         serializer = self.serializer_class(
             instance=Comment.objects.filter(
-                book__id=self.request.GET.get('book_id'),
-                is_deleted=False
+                book__id=kwargs['id'],
             ).order_by('date_created'),
             many=True,
         )
@@ -151,10 +150,13 @@ class CommentViewSet(ViewSet):
 
     def add_comment(self, *args, **kwargs):
         data = self.request.data
+        if data.get('message') == 'undefined' or data.get('message').replace(" ", "") == "":
+            message = {'status': 'You must say something!'}
+            return Response(message, status=400)   
         try:
             book = Book.objects.get(id=data.get('book_id'))
             comment = Comment.objects.create(
-                message=data.get('message'),
+                text=data.get('message'),
                 user=self.request.user,
                 book=book,
             )

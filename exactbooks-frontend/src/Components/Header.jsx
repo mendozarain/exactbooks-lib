@@ -23,15 +23,13 @@ export const Navbar = () => {
     base: false,
     lg: true,
   })
-  const handleLogout = async (event) =>{
-    event.preventDefault()
+  const handleLogout = async () =>{
     let res =  axios.post(axios.defaults.baseURL+'users/logout/',configAxios)
     .then(response => {
-      localStorage.clear();
       navigate("/login");
+      localStorage.clear();
     })
 }
-
   return (
     <Box
     >
@@ -41,14 +39,14 @@ export const Navbar = () => {
             base: '4',
             lg: '5',
           }}              
-        >
+        > 
           <HStack spacing="20" justify="space-between">
             <Logo />
             {isDesktop ? (
               <Flex justify="space-between" flex="1">
                 <ButtonGroup variant="link" spacing="10">
                   <Link to="/books/add/" className="chakra-button css-1b8elh8">Add Books</Link>
-                  <Link onClick={handleLogout} className="chakra-button css-1b8elh8">Logout</Link>
+                  <Button onClick={() =>handleLogout()} className="chakra-button css-1b8elh8">Logout</Button>
                 </ButtonGroup>
               </Flex>
             ) : (

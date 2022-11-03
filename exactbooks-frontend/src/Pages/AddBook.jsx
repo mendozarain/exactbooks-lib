@@ -73,7 +73,9 @@ import {
       console.log({cover})
       event.preventDefault()
       let form_data = new FormData();
-      form_data.append('cover', cover, cover.name);
+      if(cover!= null){
+        form_data.append('cover', cover, cover.name);
+      }
       form_data.append('title', formData['title']);
       form_data.append('status', formData['status']);
       form_data.append('location', formData['location']);

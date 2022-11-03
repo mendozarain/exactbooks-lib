@@ -25,7 +25,7 @@ urlpatterns = [
     path('owned/', BookViewSet.as_view({
         'get': 'owned_books',
     }), name="owned_books"),
-    path('comments/', CommentViewSet.as_view({
+    path('comments/<int:id>/', CommentViewSet.as_view({
         'get': 'get_comments'
     }), name='comment_list'),
     path('add-comment/', CommentViewSet.as_view({

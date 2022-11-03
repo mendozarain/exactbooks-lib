@@ -29,22 +29,22 @@ import {
   FormControl,
   FormLabel,
   Textarea,
+  FormErrorMessage ,
 } from '@chakra-ui/react';
 import { FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
 import { MdLocalShipping } from 'react-icons/md';
 import { BookCover } from 'book-cover-3d';
 import {configAxios}  from '../helpers/axios-config';
+import * as moment from 'moment'
 export default function UpdateBook (props) {
   const { id } = useParams();
-  
   const [book, getBookData] = React.useState(null)
-
   React.useEffect(() => {
      getBook();
   }, []);
 
   const getBook = () => {
-     axios.get(axios.defaults.baseURL+'books/'+id)
+     axios.get(axios.defaults.baseURL+'books/'+id, configAxios)
       .then((response) => {
         getBookData(response.data)
       })
@@ -69,6 +69,7 @@ const Card = (props) => {
   const [checkedout, getCheckedOut] = React.useState({
     'status':false,
   })
+  const [comment, getComment] = React.useState([])
   const { id } = useParams();
 
   function update(id){
@@ -76,10 +77,11 @@ const Card = (props) => {
   }
       React.useEffect(() => {
         getBookCheckout();
+        getComments();
     }, []);
 
     const getBookCheckout = () => {
-        axios.get(axios.defaults.baseURL+'books/ischeckedout/'+id)
+        axios.get(axios.defaults.baseURL+'books/ischeckedout/'+id, configAxios)
         .then((response) => {
           isCheckedOutByMe(response.data.status)
         })
@@ -87,6 +89,15 @@ const Card = (props) => {
         });
       }
 
+    const getComments = () => {
+        axios.get(axios.defaults.baseURL+'books/comments/'+id, configAxios)
+        .then((response) => {
+          getComment(response.data)
+          getUserComment("")
+        })
+        .catch((error) => {
+        });
+      }
     function isCheckedOutByMe(status){
     
       if(status==true){
@@ -105,8 +116,7 @@ const Card = (props) => {
       .then(response => {
         navigate("/");
       })
-      .catch(error => { 
-        console.log(error.response)      
+      .catch(error => {     
           getError(prevFormData => {
             return {
                 ...prevFormData,
@@ -135,7 +145,59 @@ const Card = (props) => {
     // });
  }
   const book = props.book
-  props.UpdateBook
+ 
+  const [usercomment, getUserComment] = React.useState("")
+
+  const [commeneerror, setCommentError] = React.useState({
+    commentError: false,
+    commentErrorMessage: "",
+  })
+
+  const handleComment =  (event) =>{
+    
+    getUserComment(prevFormData => {
+      return {
+          ...prevFormData,
+          [event.target.name]: event.target.value,
+      }
+      })
+      setCommentError(prevFormData => {
+        return {
+          ...prevFormData,
+          commentError: false,
+        }
+      })
+  }
+
+  const addComment = async (event) => {
+    let form_data = new FormData();
+    form_data.append('message', usercomment.usercomment);
+    form_data.append('book_id', id);
+    let res = await axios.post(axios.defaults.baseURL+'books/add-comment/', form_data,configAxios)
+    .then((response) => {
+      getUserComment(prevFormData => {
+        return {
+            ...prevFormData,
+            message:"",
+        }
+      })
+    
+      getComments();
+    })
+    .catch((error) => {
+      if (error.response.data.status) {
+        setCommentError(prevFormData => {
+          return {
+            ...prevFormData,
+            commentError: true,
+            commentErrorMessage: error.response.data.status,
+          }
+        })
+      }
+    });
+  }
+
+ 
   return (
     <Container maxW={'7xl'}>
       <SimpleGrid
@@ -266,6 +328,8 @@ const Card = (props) => {
             ) : (
               <></>
             )}
+
+   
           <Text
             color={'green.500'}
             textTransform={'uppercase'}
@@ -274,22 +338,8 @@ const Card = (props) => {
             letterSpacing={1.1}>
             Comments
           </Text>
-            <CommentInput></CommentInput>
-          <Stack direction="row" >
-               <Comment></Comment>
-          </Stack>
-          <Stack direction="row" >
-               <Comment></Comment>
-          </Stack>
-          <Stack direction="row" >
-               <Comment></Comment>
-          </Stack>
-          <Stack direction="row" >
-               <Comment></Comment>
-          </Stack>
-          <Stack direction="row" >
-               <Comment></Comment>
-          </Stack>
+            <CommentInput commeneerror={commeneerror}  usercomment={usercomment} handleComment = {handleComment} addComment = {addComment}/>
+            <Comment comment={comment} />
         </Stack>
         <Flex>
         <Stack spacing={{ base: 6, md: 10 }}>
@@ -327,9 +377,16 @@ function Authors(props) {
   )
 }
 
- function Comment() {
+
+
+ function Comment(props) {
+  if (props.comment!=[]){
   return (
-      <Box
+    props.comment.slice(0).reverse().map((user_comment, index) => {
+      return(
+        <Stack direction="row" >
+        <Box
+        key={user_comment.id}
         maxW={'full'}
         w={'full'}
         bg={useColorModeValue('white', 'gray.900')}
@@ -339,80 +396,59 @@ function Authors(props) {
         overflow={'hidden'}>
         <Stack mt={1} mb={1} direction={'row'} spacing={4} align={'center'}>
           <Avatar
-            src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
+            src={user_comment.user.image}
             alt={'Author'}
           />
           <Stack direction={'column'} spacing={0} fontSize={'sm'}>
-            <Text fontWeight={600}>Achim Rolle</Text>
-            <Text color={'gray.500'}>Feb 08, 2021 · 6min read</Text>
+            <Text fontWeight={600}> {user_comment.user.full_name}</Text>
+            <Text color={'gray.500'}>{user_comment.timeago}</Text>
           </Stack>
         </Stack>
-        <Stack>
-          <Text color={'gray.500'}>
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam
-            erat, sed diam voluptua. At vero eos et accusam et justo duo dolores
-            et ea rebum.
+        <Stack>m
+          <Text mt={5} color={'gray.500'}>
+                {user_comment.text}
           </Text>
         </Stack>
       </Box>
+      </Stack>
+      )
+  }) 
   );
 }
+}
 
-
-function CommentInput(prop) {
-  return (
-      <Box
-        maxW={'full'}
-        w={'full'}
-        bg={useColorModeValue('white', 'gray.900')}
-        boxShadow={'2xl'}
-        rounded={'md'}
-        p={6}
-        overflow={'hidden'}>
-        <Stack mt={1} mb={1} direction={'row'} spacing={4} align={'center'}>
-          <Avatar
-            src={'https://avatars0.githubusercontent.com/u/1164541?v=4'}
-            alt={'Author'}
-          />
-          <Stack direction={'column'} spacing={0} fontSize={'sm'}>
-            <Text fontWeight={600}>Achim Rolle</Text>
-
+function CommentInput(props) {
+      return (
+        <Box
+          maxW={'full'}
+          w={'full'}
+          bg={useColorModeValue('white', 'gray.900')}
+          boxShadow={'2xl'}
+          rounded={'md'}
+          p={6}
+          overflow={'hidden'}>
+          <Stack>
+          <FormControl isInvalid={props.commeneerror.commentError}>
+            <FormLabel></FormLabel>
+            <Textarea
+             
+             value={props.usercomment.message}
+              name="usercomment"
+              placeholder="What do you think about the book?"
+              rows={4}
+              resize="none"
+            onChange={props.handleComment}
+            />
+             <FormErrorMessage>{props.commeneerror.commentErrorMessage}</FormErrorMessage>
+          </FormControl>
+          <Button onClick={() => props.addComment()} colorScheme='teal' size='xs'>
+                Add Comment
+              </Button>
           </Stack>
-        </Stack>
-        <Stack>
-        <FormControl>
-          <FormLabel></FormLabel>
-          <Textarea
-            name="comment"
-            placeholder="What do you think about the book?"
-            rows={4}
-            resize="none"
-          />
-        </FormControl>
-        </Stack>
-      </Box>
-  );
+        </Box>
+    );
+  
 }
 
 
-
-function ToastError() {
-  const toast = useToast()
-  return (
-    <Button
-      onClick={() =>
-        toast({
-          title: 'Account created.',
-          description: "We've created your account for you.",
-          status: 'success',
-          duration: 9000,
-          isClosable: true,
-        })
-      }
-    >
-      Show Toast
-    </Button>
-  )
-}
 
