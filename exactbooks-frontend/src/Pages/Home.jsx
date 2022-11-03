@@ -5,7 +5,7 @@ import axios from 'axios';
 
 export default function Home (props) {
   const [books, getBooksData] = React.useState('');
-
+  props.funcNav(true);
   React.useEffect(() => {
      getBooks();
   }, []);

@@ -40,6 +40,9 @@ urlpatterns = [
     path('checkout/', CheckoutViewSet.as_view({
         'post': 'checkout_book'
     }), name='checkout_book'),
+     path('ischeckedout/<int:id>', CheckoutViewSet.as_view({
+        'get': 'is_checked_out'
+    }), name='checkout_book'),
     path('return/', CheckoutViewSet.as_view({
         'post': 'return_book'
     }), name='return_book'),

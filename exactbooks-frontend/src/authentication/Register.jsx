@@ -136,7 +136,6 @@ import {
               Sign up
             </Heading>
             <Text fontSize={'lg'} color={'gray.600'}>
-              to enjoy all of our cool features ✌️
             </Text>
           </Stack>
           <Box
@@ -213,7 +212,7 @@ import {
               </Stack>
               <Stack pt={6}>
                 <Text align={'center'}>
-                  Already a user? <Link color={'blue.400'}>Login</Link>
+                  Already a user? <Link onClick={() => navigate('/login')} color={'blue.400'}>Login</Link>
                 </Text>
               </Stack>
             </Stack>

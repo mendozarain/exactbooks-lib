@@ -22,15 +22,6 @@ class BookViewSet(ViewSet):
     permission_classes = (IsAuthenticated,)
 
     def add_book(self, *args, **kwargs):
-        authors = self.request.data['authors']
-        authors_list = []
-        if authors and not ',' in authors:
-            authors_list.append({'value':authors})
-        elif authors and ',' in authors:
-            for author in self.request.data['authors'].split(','):
-                authors_list.append({'value':author})
-        self.request.data['authors'] = authors_list
-
         serializer = self.serializer_class(
             data=self.request.data, request=self.request
         )
@@ -51,15 +42,6 @@ class BookViewSet(ViewSet):
         return Response(serializer.data, status=200)
 
     def update_book(self, *args, **kwargs):
-        authors = self.request.data['authors']
-        authors_list = []
-        if authors and not ',' in authors:
-            authors_list.append({'value':authors})
-        elif authors and ',' in authors:
-            for author in self.request.data['authors'].split(','):
-                authors_list.append({'value':author})
-        self.request.data['authors'] = authors_list
-        
         serializer = self.serializer_class(
             instance=Book.objects.get(id=self.request.data.get('id')),
             data=self.request.data,
@@ -91,17 +73,14 @@ class CheckoutViewSet(ViewSet):
         return Response(serializer.data, status=200)
 
     def is_checked_out(self, *args, **kwargs):
-        data = self.request.GET
-        book_obj = Book.objects.get(id=data.get('book_id'))
+        book_obj = Book.objects.get(id=kwargs['id'])
         message = {'status': False}
         if book_obj.status != 'available':
-            serializer = self.serializer_class(
-                instance=Checkout.objects.get(
-                    book=book_obj,
-                    checked_out_by=self.request.user,
-                    returned_date__isnull=True),
-            )
-            message['status'] = True
+            checkout = Checkout.objects.filter(checked_out_by=self.request.user)
+            for check in checkout:
+                if check.book.id == kwargs['id']:
+                    if not check.returned_date:
+                        message['status'] = True
             return Response(message, status=200)
         return Response(message, status=200)
 
@@ -148,14 +127,14 @@ class CheckoutViewSet(ViewSet):
                     checkout_obj.save()
                     book_obj.save()
                     message = {'status': 'Success'}
+                    return Response(message, status=200)
             else:
                 message = {'status': 'Book is currently unavailable'}
                 return Response(message, status=400)
         except:
             message = {'status': 'Something went wrong try again'}
             return Response(message, status=400)
-        return Response(message, status=200)
-
+        
 class CommentViewSet(ViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthenticated,)

@@ -101,61 +101,16 @@ import {
                 px={3}>
                  {book.description}
               </Text>
-              <Stack align={'center'} justify={'center'} direction={'row'} mt={6}>
-                <Badge
-                  px={2}
-                  py={1}
-                  bg={useColorModeValue('gray.50', 'gray.800')}
-                  fontWeight={'400'}>
-                  #art
+              <Stack align={'center'}  direction={'row'} mt={6}>
+                {book.status == 'available' ? (
+                <Badge  rounded={'full'}  px={2}  fontWeight={'400'} py={1} variant='subtle' colorScheme='green'>
+                      {book.status}
                 </Badge>
-                <Badge
-                  px={2}
-                  py={1}
-                  bg={useColorModeValue('gray.50', 'gray.800')}
-                  fontWeight={'400'}>
-                  #photography
-                </Badge>
-                <Badge
-                  px={2}
-                  py={1}
-                  bg={useColorModeValue('gray.50', 'gray.800')}
-                  fontWeight={'400'}>
-                  #music
-                </Badge>
-              </Stack>
-              <Stack
-                width={'100%'}
-                mt={'2rem'}
-                direction={'row'}
-                padding={2}
-                justifyContent={'space-between'}
-                alignItems={'center'}>
-                <Button
-                  flex={1}
-                  fontSize={'sm'}
-                  rounded={'full'}
-                  _focus={{
-                    bg: 'gray.200',
-                  }}>
-                  Message
-                </Button>
-                <Button
-
-                  flex={1}
-                  fontSize={'sm'}
-                  rounded={'full'}
-                  bg={'blue.400'}
-                  color={'white'}
-                  _hover={{
-                    bg: 'blue.500',
-                  }}
-                  _focus={{
-                    bg: 'blue.500',
-                  }}>
-                  More Info
-                </Button>
-              </Stack>
+                ) : (
+                  <Badge rounded={'full'} px={2}  fontWeight={'400'} py={1} variant='subtle' colorScheme='red'>{book.status}</Badge>
+                )}
+              <Badge  rounded={'full'}  px={2}  fontWeight={'400'} py={1} variant='subtle' >{book.location}</Badge>
+            </Stack>
             </Stack>
           </Stack>
         </Center>
@@ -242,37 +197,6 @@ import {
                   fontWeight={'400'}>
                   #music
                 </Badge>
-              </Stack>
-              <Stack
-                width={'100%'}
-                mt={'2rem'}
-                direction={'row'}
-                padding={2}
-                justifyContent={'space-between'}
-                alignItems={'center'}>
-                <Button
-                  flex={1}
-                  fontSize={'sm'}
-                  rounded={'full'}
-                  _focus={{
-                    bg: 'gray.200',
-                  }}>
-                  Message
-                </Button>
-                <Button
-                  flex={1}
-                  fontSize={'sm'}
-                  rounded={'full'}
-                  bg={'blue.400'}
-                  color={'white'}
-                  _hover={{
-                    bg: 'blue.500',
-                  }}
-                  _focus={{
-                    bg: 'blue.500',
-                  }}>
-                  More Info
-                </Button>
               </Stack>
             </Stack>
           </Stack>
